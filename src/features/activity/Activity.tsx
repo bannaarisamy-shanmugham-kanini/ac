@@ -17,6 +17,26 @@ export const Activity = () => {
     setHeaderName("Activities");
   }, [setHeaderName]);
 
+  // Sort activities by createdAt in descending order (latest first)
+  const sortedActivities = [...activities].sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA;
+  });
+
+  // Format the time
+  const formatTime = (dateString: Date) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   const renderIcon = (type: string) => {
     switch (type) {
       case "ADD":
@@ -51,13 +71,13 @@ export const Activity = () => {
 
         {/* Activity List */}
         <div className="flex flex-col divide-y">
-          {activities.length === 0 && (
+          {sortedActivities.length === 0 && (
             <div className="p-6 text-center text-gray-500">
               No activities found
             </div>
           )}
 
-          {activities.map((activity, index) => (
+          {sortedActivities.map((activity, index) => (
             <div
               key={index}
               className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition"
@@ -82,7 +102,9 @@ export const Activity = () => {
                     {activity.entityType}
                   </span>
                 </span>
-                <span className="text-xs text-gray-400">Just now</span>
+                <span className="text-xs text-gray-400">
+                  {formatTime(activity.createdAt)}
+                </span>
               </div>
             </div>
           ))}

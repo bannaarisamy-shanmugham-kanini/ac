@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore, useProjectStore } from "@/store";
 import {
   Table,
@@ -11,15 +11,43 @@ import {
 import { Pencil, Trash, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const ProjectList = () => {
   const projects = useProjectStore((s) => s.projects);
+  const deleteProject = useProjectStore((s) => s.deleteProject);
   const setHeaderName = useAppStore((s) => s.updateHeaderName);
   const navigate = useNavigate();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // Sort projects by createdAt (latest first)
+  const sortedProjects = [...projects].sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA; // Latest first
+  });
 
   useEffect(() => {
     setHeaderName("Projects");
   }, [setHeaderName]);
+
+  const handleDelete = () => {
+    if (deleteId) {
+      deleteProject(deleteId);
+      setDeleteId(null);
+    }
+  };
+
+  console.log("Projects:", projects);
 
   return (
     <div className="w-full flex justify-center px-6 py-6">
@@ -48,6 +76,7 @@ export const ProjectList = () => {
                 <TableHead className="w-16">S.No</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Description</TableHead>
+                <TableHead>Created At</TableHead>
                 <TableHead className="text-center">
                   Actions
                 </TableHead>
@@ -55,8 +84,8 @@ export const ProjectList = () => {
             </TableHeader>
 
             <TableBody>
-              {projects.length > 0 ? (
-                projects.map((item, index) => (
+              {sortedProjects.length > 0 ? (
+                sortedProjects.map((item, index) => (
                   <TableRow
                     key={item.id}
                     className="hover:bg-gray-50 transition"
@@ -67,6 +96,15 @@ export const ProjectList = () => {
                     </TableCell>
                     <TableCell className="text-gray-600">
                       {item.description || "No description"}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {new Date(item.createdAt).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-2">
@@ -83,6 +121,7 @@ export const ProjectList = () => {
                         <Button
                           variant="ghost"
                           className="text-red-600 hover:bg-red-50"
+                          onClick={() => setDeleteId(item.id)}
                         >
                           <Trash size={18} />
                         </Button>
@@ -93,7 +132,7 @@ export const ProjectList = () => {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     className="text-center py-8 text-gray-500"
                   >
                     No projects found. Create your first project.
@@ -104,6 +143,28 @@ export const ProjectList = () => {
           </Table>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              project and all its associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

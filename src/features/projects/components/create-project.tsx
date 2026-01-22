@@ -42,6 +42,7 @@ export const CreateProject = () => {
       id: crypto.randomUUID(),
       title: form.projectName,
       description: form.projectDescription,
+      createdAt: new Date(),
     });
 
     navigate("/projects");

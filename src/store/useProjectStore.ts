@@ -4,6 +4,7 @@ export type Project = {
   id: string;
   title: string;
   description?: string;
+  createdAt: Date;
 };
 
 type ProjectState = {
@@ -18,8 +19,12 @@ export const useProjectStore = create<ProjectState>((set) => ({
   projects: [],
 
   createProject: (item) => {
+    const projectWithTimestamp = {
+      ...item,
+      createdAt: new Date(),
+    };
     set((state) => ({
-      projects: [...state.projects, item],
+      projects: [...state.projects, projectWithTimestamp],
     }));
     useAppStore.getState().updateActivities({
       id: useAppStore.getState().activities.length + 1,
@@ -28,7 +33,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
       changesMade: {
         field: "projects",
         prevChanges: "",
-        newChanges: JSON.stringify(item),
+        newChanges: JSON.stringify(projectWithTimestamp),
       },
       createdAt: new Date(),
     });
