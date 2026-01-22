@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -9,109 +8,106 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export const EditProject = () => {
   const { id } = useParams();
-  const projectToEdit = useProjectStore((state) => state.projects).filter(
-    (project) => project.id === id,
-  );
-  console.log(projectToEdit, "projectToEdit");
-  const [projects, setProjects] = useState({
-    projectName: "", //projectToEdit[0].title ?? "",
-    projectDescription: "",
-  });
-  const [error, setError] = useState({
-    projectName: "",
-    projectDescription: "",
-  });
-  const projectsUpdate = useProjectStore((state) => state.updateProject);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (
-      projectToEdit.length > 0 &&
-      projects.projectName === "" &&
-      projects.projectDescription === ""
-    ) {
-      setProjects({
-        projectName: projectToEdit[0].title,
-        projectDescription: projectToEdit[0].description ?? "",
-      });
-    }
-  }, [projects, projectToEdit]);
+  const project = useProjectStore((s) =>
+    s.projects.find((p) => p.id === id)
+  );
 
-  const handleUpdateProject = () => {
-    if (!id) return;
-    if (projects.projectDescription === "") {
-      setError({
-        ...error,
-        projectDescription: "Please enter project description",
-      });
-      return;
+  const updateProject = useProjectStore((s) => s.updateProject);
+
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (project) {
+      setDescription(project.description ?? "");
     }
-    projectsUpdate(id, { description: projects.projectDescription });
-    navigate("/projects");
-  };
-  if (!id)
+  }, [project]);
+
+  /* ---------------- Guard States ---------------- */
+  if (!id) {
     return (
-      <div className="flex justify-center gap-2 p-2">
-        Edit page is accessed without Proper details, Please click{" "}
-        <a href="/projects">here</a> to redirect to Projects page.
+      <div className="flex justify-center p-6 text-red-500">
+        Invalid project reference.{" "}
+        <Button variant="link" onClick={() => navigate("/projects")}>
+          Go back
+        </Button>
       </div>
     );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex justify-center p-6 text-gray-500">
+        Project not found.
+      </div>
+    );
+  }
+
+  /* ---------------- Submit ---------------- */
+  const handleUpdate = () => {
+    if (!description.trim()) {
+      setError("Project description is required");
+      return;
+    }
+
+    updateProject(id, { description });
+    navigate("/projects");
+  };
+
   return (
-    <div className="flex flex-col justify-center gap-2 p-2">
-      <div className="flex flex-col justify-center w-md gap-2">
-        <Label>Name</Label>
-        <Input
-          type="text"
-          className=""
-          value={projectToEdit[0].title}
-          readOnly={true}
-        />
-      </div>
-      {error.projectName != "" && (
-        <div className="text-red-500">Please enter project name</div>
-      )}
-      <div className="w-md gap-2">
-        <Label>Description</Label>
-        <Textarea
-          rows={3}
-          cols={40}
-          className=""
-          value={projects.projectDescription}
-          onChange={(e) => {
-            setProjects(() => {
-              return {
-                ...projects,
-                projectDescription: e.target.value,
-              };
-            });
-            if (e.target.value != "" && error.projectDescription !== "") {
-              {
-                setError({ ...error, projectDescription: "" });
-              }
-            }
-          }}
-        />
-      </div>
-      {error.projectDescription != "" && (
-        <div className="text-red-500">Please enter project description</div>
-      )}
-      <div className="flex align-text-bottom w-md justify-between">
-        <Button
-          variant={"ghost"}
-          size={"lg"}
-          onClick={() => {
-            navigate("/projects");
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant={"default"}
-          size={"lg"}
-          onClick={() => handleUpdateProject()}
-        >
-          Update Project
-        </Button>
+    <div className="w-full flex justify-center px-6 py-8">
+      <div className="w-full max-w-xl bg-white border rounded-2xl shadow-sm p-6 flex flex-col gap-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Edit Project
+          </h1>
+          <p className="text-sm text-gray-500">
+            Update project details below
+          </p>
+        </div>
+
+        {/* Project Name */}
+        <div className="flex flex-col gap-1">
+          <Label>Project Name</Label>
+          <Input value={project.title} readOnly />
+        </div>
+
+        {/* Description */}
+        <div className="flex flex-col gap-1">
+          <Label>Description</Label>
+          <Textarea
+            rows={4}
+            value={description}
+            placeholder="Update project description"
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (error) setError("");
+            }}
+          />
+          {error && (
+            <span className="text-sm text-red-500">{error}</span>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-2">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/projects")}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={handleUpdate}
+          >
+            Update Project
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -16,27 +16,28 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/store";
 import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
 const MENU_ITEMS = [
   {
     label: "Activity",
     href: "/",
-    icon: <Activity />,
+    icon: Activity,
   },
   {
     label: "Projects",
     href: "/projects",
-    icon: <PanelsTopLeft />,
+    icon: PanelsTopLeft,
   },
   {
     label: "Tasks",
     href: "/tasks",
-    icon: <ListTodo />,
+    icon: ListTodo,
   },
   {
     label: "Users",
     href: "/users",
-    icon: <UserRound />,
+    icon: UserRound,
   },
 ];
 
@@ -44,37 +45,61 @@ export const Header = () => {
   const headerName = useAppStore((state) => state.headerName);
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const navigate = useNavigate();
+
   return (
     <Sheet open={sideBarOpen} onOpenChange={setSideBarOpen}>
-      <SheetTrigger asChild className="w-30">
-        <Button variant="ghost" size="icon">
-          <div className="flex flex-row gap-2">
-            <Menu /> {headerName || ""}
-          </div>
+      {/* Header Button */}
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 px-3 py-2 text-indigo-600 hover:bg-indigo-50"
+        >
+          <Menu size={18} />
+          <span className="font-semibold text-sm">
+            {headerName || "Menu"}
+          </span>
         </Button>
       </SheetTrigger>
+
+      {/* Sidebar */}
       <SheetContent
         side="left"
-        className="min-w-[150px] transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] data-[state=closed]:translate-x-full data-[state=open]:translate-x-0 data-[state=closed]:opacity-0 data-[state=open]:opacity-100"
+        className="w-64 bg-white border-r shadow-lg"
       >
+        {/* Brand */}
         <SheetTitle>
-          <div className="border-b-2">Activity App</div>
+          <div className="flex items-center gap-2 px-4 py-4 border-b">
+            <Activity className="text-indigo-600" />
+            <span className="font-bold text-lg text-indigo-600">
+              Activity App
+            </span>
+          </div>
         </SheetTitle>
-        <SheetDescription>
+
+        {/* Menu */}
+        <SheetDescription className="pt-2">
           {MENU_ITEMS.map((menu) => {
+            const Icon = menu.icon;
+
             return (
-              <div className="p-3 w-full">
+              <div key={menu.href} className="px-3 py-1">
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="w-full hover:bg-gray-100"
+                  className={clsx(
+                    "w-full justify-start gap-3 text-gray-700",
+                    "hover:bg-indigo-50 hover:text-indigo-600"
+                  )}
                   onClick={(e) => {
                     e.preventDefault();
                     navigate(menu.href);
                     setSideBarOpen(false);
                   }}
                 >
-                  {menu.label}
+                  <Icon size={18} />
+                  <span className="text-sm font-medium">
+                    {menu.label}
+                  </span>
                 </Button>
               </div>
             );

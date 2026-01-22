@@ -1,71 +1,91 @@
 import { useAppStore } from "@/store";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Activity as ActivityIcon, Pencil, Plus, Trash } from "lucide-react";
+import {
+  Activity as ActivityIcon,
+  Pencil,
+  Plus,
+  Trash,
+} from "lucide-react";
+import clsx from "clsx";
 
 export const Activity = () => {
-  const setHeaderName = useAppStore((appStore) => appStore.updateHeaderName);
-  const activities = useAppStore((state) => state.activities);
-  console.log(activities, "activities");
+  const setHeaderName = useAppStore((s) => s.updateHeaderName);
+  const activities = useAppStore((s) => s.activities);
+
   useEffect(() => {
     setHeaderName("Activities");
-  }, []);
+  }, [setHeaderName]);
+
+  const renderIcon = (type: string) => {
+    switch (type) {
+      case "ADD":
+        return <Plus className="text-green-600" size={18} />;
+      case "UPDATE":
+        return <Pencil className="text-blue-600" size={18} />;
+      case "DELETE":
+        return <Trash className="text-red-600" size={18} />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="w-full top-0 content-center">
-      <h1>
-        <div className="flex flex-row gap-2 py-2">
-          <ActivityIcon />
-          Activities
+    <div className="w-full flex flex-col items-center px-6 py-4">
+      {/* Page Header */}
+      <div className="flex items-center gap-2 mb-4 justify-center">
+        <ActivityIcon className="text-gray-700" />
+        <h1 className="text-xl font-semibold">Activities</h1>
+      </div>
+
+      {/* Activity Card */}
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-sm border">
+        {/* Filters */}
+        <div className="flex justify-center gap-2 p-3 border-b bg-gray-50 rounded-t-2xl w-full">
+          {["Today", "Yesterday", "All", "Filter"].map((item) => (
+            <Button key={item} variant="ghost" size="sm">
+              {item}
+            </Button>
+          ))}
         </div>
-      </h1>
-      <div className="w-2/4 bg-gray-300 rounded-2xl border-gray-700 flex flex-col border-b-2">
-        <div className="flex flex-row justify-center">
-          <div className="">
-            <Button variant="ghost">Today</Button>
-          </div>
-          <div className="">
-            <Button variant="ghost">Yesterday</Button>
-          </div>
-          <div className="">
-            <Button variant="ghost">All</Button>
-          </div>
-          <div className="">
-            <Button variant="ghost">Filter</Button>
-          </div>
-        </div>
-        <div className="flex flex-col gap-4 w-full items-center">
-          {activities.map((activity) => {
-            if (activity.actionType === "ADD") {
-              return (
-                <div className="flex flex-col">
-                  <div className="flex flex-row">
-                    <Plus /> {activity.actionType} {activity.entityType}
-                  </div>
-                  <div className="flex flex-row"></div>
-                </div>
-              );
-            }
-            if (activity.actionType === "UPDATE") {
-              return (
-                <div className="flex flex-col">
-                  <div className="flex flex-row">
-                    <Pencil /> {activity.actionType} {activity.entityType}
-                  </div>
-                  <div className="flex flex-row"></div>
-                </div>
-              );
-            }
-            if (activity.actionType === "DELETE") {
-              return (
-                <div className="flex flex-col">
-                  <div className="flex flex-row">
-                    <Trash /> {activity.actionType} {activity.entityType}
-                  </div>
-                  <div className="flex flex-row"></div>
-                </div>
-              );
-            }
-          })}
+
+        {/* Activity List */}
+        <div className="flex flex-col divide-y">
+          {activities.length === 0 && (
+            <div className="p-6 text-center text-gray-500">
+              No activities found
+            </div>
+          )}
+
+          {activities.map((activity, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition"
+            >
+              {/* Icon */}
+              <div
+                className={clsx(
+                  "flex items-center justify-center w-9 h-9 rounded-full",
+                  activity.actionType === "ADD" && "bg-green-100",
+                  activity.actionType === "UPDATE" && "bg-blue-100",
+                  activity.actionType === "DELETE" && "bg-red-100"
+                )}
+              >
+                {renderIcon(activity.actionType)}
+              </div>
+
+              {/* Text */}
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">
+                  {activity.actionType}{" "}
+                  <span className="text-gray-700">
+                    {activity.entityType}
+                  </span>
+                </span>
+                <span className="text-xs text-gray-400">Just now</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
