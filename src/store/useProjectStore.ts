@@ -30,6 +30,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
       id: useAppStore.getState().activities.length + 1,
       actionType: "ADD",
       entityType: "PROJECT",
+      entityId: item.id,
+      entityName: item.title,
       changesMade: {
         field: "projects",
         prevChanges: "",
@@ -52,6 +54,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
       id: useAppStore.getState().activities.length + 1,
       actionType: "UPDATE",
       entityType: "PROJECT",
+      entityId: id,
+      entityName: item?.title || "",
       changesMade: {
         field: "projects",
         prevChanges: JSON.stringify(item),
@@ -72,6 +76,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
       id: useAppStore.getState().activities.length + 1,
       actionType: "DELETE",
       entityType: "PROJECT",
+      entityId: id,
+      entityName: project?.title || "",
       changesMade: {
         field: "projects",
         prevChanges: JSON.stringify({ ...project }),

@@ -5,6 +5,9 @@ import { Activity } from "@/features/activity/Activity";
 import { ProjectList } from "@/features/projects/components/project-list";
 import { CreateProject } from "@/features/projects/components/create-project";
 import { EditProject } from "@/features/projects/components/edit-project";
+import { useEffect } from "react";
+import { rehydrateStore } from "@/store/rehydrate";
+import { initZustandPersistence } from "@/store/persistToIndexedDB";
 
 const router = createBrowserRouter([
   {
@@ -21,5 +24,9 @@ const router = createBrowserRouter([
 ]);
 
 export function AppRouter() {
+  useEffect(() => {
+    rehydrateStore();
+    initZustandPersistence();
+  }, []);
   return <RouterProvider router={router} />;
 }

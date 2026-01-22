@@ -1,4 +1,4 @@
 import { useProjectStore } from "./useProjectStore";
-import { useAppStore } from "./useAppStore";
+import { useAppStore, type Activities } from "./useAppStore";
 
-export { useProjectStore, useAppStore };
+export { useProjectStore, useAppStore, type Activities };

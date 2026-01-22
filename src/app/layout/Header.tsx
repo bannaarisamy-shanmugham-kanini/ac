@@ -29,16 +29,16 @@ const MENU_ITEMS = [
     href: "/projects",
     icon: PanelsTopLeft,
   },
-  {
-    label: "Tasks",
-    href: "/tasks",
-    icon: ListTodo,
-  },
-  {
-    label: "Users",
-    href: "/users",
-    icon: UserRound,
-  },
+  // {
+  //   label: "Tasks",
+  //   href: "/tasks",
+  //   icon: ListTodo,
+  // },
+  // {
+  //   label: "Users",
+  //   href: "/users",
+  //   icon: UserRound,
+  // },
 ];
 
 export const Header = () => {
@@ -55,17 +55,12 @@ export const Header = () => {
           className="flex items-center gap-2 px-3 py-2 text-indigo-600 hover:bg-indigo-50"
         >
           <Menu size={18} />
-          <span className="font-semibold text-sm">
-            {headerName || "Menu"}
-          </span>
+          <span className="font-semibold text-sm">{headerName || "Menu"}</span>
         </Button>
       </SheetTrigger>
 
       {/* Sidebar */}
-      <SheetContent
-        side="left"
-        className="w-64 bg-white border-r shadow-lg"
-      >
+      <SheetContent side="left" className="w-64 bg-white border-r shadow-lg">
         {/* Brand */}
         <SheetTitle>
           <div className="flex items-center gap-2 px-4 py-4 border-b">
@@ -88,7 +83,7 @@ export const Header = () => {
                   size="lg"
                   className={clsx(
                     "w-full justify-start gap-3 text-gray-700",
-                    "hover:bg-indigo-50 hover:text-indigo-600"
+                    "hover:bg-indigo-50 hover:text-indigo-600",
                   )}
                   onClick={(e) => {
                     e.preventDefault();
@@ -97,9 +92,7 @@ export const Header = () => {
                   }}
                 >
                   <Icon size={18} />
-                  <span className="text-sm font-medium">
-                    {menu.label}
-                  </span>
+                  <span className="text-sm font-medium">{menu.label}</span>
                 </Button>
               </div>
             );
