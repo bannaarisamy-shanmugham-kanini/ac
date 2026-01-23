@@ -25,8 +25,7 @@ const groupByProject = (activities: ActivityItem[]) => {
   Object.keys(map).forEach((key) => {
     map[key].sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() -
-        new Date(a.createdAt).getTime(),
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
   });
 
@@ -48,10 +47,12 @@ const formatTime = (dateString: Date) => {
 
 export const ProjectActivityPage = ({
   activities,
-    projects,
+  projects,
+  setHighLightId,
 }: {
   activities: ActivityItem[];
   projects: { title: string }[];
+  setHighLightId: (id: string) => void;
 }) => {
   const [openProject, setOpenProject] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -89,9 +90,7 @@ export const ProjectActivityPage = ({
                 {/* Accordion Header */}
                 <button
                   className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition"
-                  onClick={() =>
-                    setOpenProject(isOpen ? null : projectName)
-                  }
+                  onClick={() => setOpenProject(isOpen ? null : projectName)}
                 >
                   <div className="text-left">
                     <p className="text-sm font-medium text-gray-800">
@@ -116,6 +115,9 @@ export const ProjectActivityPage = ({
                       <div
                         key={activity.id}
                         className="bg-white border rounded-md p-2"
+                        onClick={(e) => {
+                          setHighLightId(`activity-${activity.id}`);
+                        }}
                       >
                         <div className="flex justify-between items-start">
                           <div>
@@ -138,19 +140,27 @@ export const ProjectActivityPage = ({
                             </p>
                           </div>
 
-                          {activity.actionType === "UPDATE" && activity.entityId && (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-7 w-7"
-                              disabled={!projects.some(project => project.title === activity.entityName)}
-                              onClick={() =>
-                                navigate("/projects/edit/" + activity.entityId)
-                              }
-                            >
-                              <SquareArrowOutUpRight className="h-4 w-4" />
-                            </Button>
-                          )}
+                          {activity.actionType === "UPDATE" &&
+                            activity.entityId && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7"
+                                disabled={
+                                  !projects.some(
+                                    (project) =>
+                                      project.title === activity.entityName,
+                                  )
+                                }
+                                onClick={() =>
+                                  navigate(
+                                    "/projects/edit/" + activity.entityId,
+                                  )
+                                }
+                              >
+                                <SquareArrowOutUpRight className="h-4 w-4" />
+                              </Button>
+                            )}
                         </div>
                       </div>
                     ))}

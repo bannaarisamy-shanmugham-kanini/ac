@@ -31,6 +31,7 @@ export const Activity = () => {
   const [groupByAction, setGroupByAction] = useState<string>("ADD");
   const [openId, setOpenId] = useState<string | number | null>(null);
   const navigate = useNavigate();
+  const [hightLightId, setHighLightId] = useState("");
 
   useEffect(() => {
     setHeaderName("Activities");
@@ -38,11 +39,27 @@ export const Activity = () => {
 
   console.log(projects, "projects");
 
+  const showHighLight = (highLightRow: string) => {
+    setHighLightId((prev) => highLightRow);
+    const targetId = highLightRow;
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.focus({ preventScroll: true });
+      setTimeout(() => {
+        setHighLightId("");
+      }, 1000);
+
+      // target.classList.add("animate-pulse"); // tailwind built-in
+      // setTimeout(() => target.classList.remove("animate-pulse"), 600);
+    }
+  };
+
   const sortedActivities = useMemo(() => {
     return [...activities]
       .filter((activity) => {
         if (filterData === "All") return true;
-        
+
         if (filterData === "GroupBy") {
           return activity.actionType === groupByAction;
         }
@@ -54,9 +71,12 @@ export const Activity = () => {
           start = new Date(
             new Date().setDate(new Date().getDate() - 1),
           ).setHours(0, 0, 0, 0);
-          end = new Date(
-            new Date().setDate(new Date().getDate() - 1),
-          ).setHours(23, 59, 59, 999);
+          end = new Date(new Date().setDate(new Date().getDate() - 1)).setHours(
+            23,
+            59,
+            59,
+            999,
+          );
         }
 
         return (
@@ -66,8 +86,7 @@ export const Activity = () => {
       })
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() -
-          new Date(a.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
   }, [activities, filterData, groupByAction]);
 
@@ -75,8 +94,7 @@ export const Activity = () => {
     if (type === "ADD") return <Plus size={18} className="text-green-600" />;
     if (type === "UPDATE")
       return <Pencil size={18} className="text-blue-600" />;
-    if (type === "DELETE")
-      return <Trash size={18} className="text-red-600" />;
+    if (type === "DELETE") return <Trash size={18} className="text-red-600" />;
     return null;
   };
 
@@ -104,20 +122,20 @@ export const Activity = () => {
                 size="sm"
                 onClick={() => setFilterData(item)}
                 className={clsx(
-                  filterData === item && "bg-blue-500 text-white"
+                  filterData === item && "bg-blue-500 text-white",
                 )}
               >
                 {item}
               </Button>
             ))}
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant={filterData === "GroupBy" ? "default" : "ghost"}
                   size="sm"
                   className={clsx(
-                    filterData === "GroupBy" && "bg-blue-500 text-white"
+                    filterData === "GroupBy" && "bg-blue-500 text-white",
                   )}
                 >
                   GroupBy {filterData === "GroupBy" && `(${groupByAction})`}
@@ -168,7 +186,12 @@ export const Activity = () => {
             {sortedActivities.map((activity) => (
               <div
                 key={activity.id}
-                className="px-4 py-3 hover:bg-gray-50"
+                id={`activity-${activity.id}`}
+                className={clsx(
+                  "px-4 py-3 hover:bg-gray-50 ",
+                  hightLightId === `activity-${activity.id}` &&
+                    "transition ring-4 ring-sky-300 ring-offset-2 bg-sky-50",
+                )}
               >
                 <div className="flex justify-between">
                   <div className="flex gap-3">
@@ -199,7 +222,11 @@ export const Activity = () => {
                       <Button
                         size="icon"
                         variant="ghost"
-                        disabled={!projects.some(project => project.title === activity.entityName)}
+                        disabled={
+                          !projects.some(
+                            (project) => project.title === activity.entityName,
+                          )
+                        }
                         onClick={() =>
                           navigate("/projects/edit/" + activity.entityId)
                         }
@@ -211,9 +238,7 @@ export const Activity = () => {
                         size="icon"
                         variant="ghost"
                         onClick={() =>
-                          setOpenId(
-                            openId === activity.id ? null : activity.id,
-                          )
+                          setOpenId(openId === activity.id ? null : activity.id)
                         }
                       >
                         {openId === activity.id ? (
@@ -238,7 +263,11 @@ export const Activity = () => {
 
         {/* Right Column */}
         <div className="w-80">
-          <ProjectActivityPage activities={activities} projects={projects} />
+          <ProjectActivityPage
+            activities={activities}
+            projects={projects}
+            setHighLightId={showHighLight}
+          />
         </div>
       </div>
     </div>
