@@ -5,6 +5,7 @@ import { Activity } from "@/features/activity/Activity";
 import { ProjectList } from "@/features/projects/components/project-list";
 import { CreateProject } from "@/features/projects/components/create-project";
 import { EditProject } from "@/features/projects/components/edit-project";
+import { ViewProject } from "@/features/projects/components/view-project";
 import { useEffect } from "react";
 import { rehydrateStore } from "@/store/rehydrate";
 import { initZustandPersistence } from "@/store/persistToIndexedDB";
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
       { path: "projects", element: <ProjectList /> },
       { path: "projects/create", element: <CreateProject /> },
       { path: "projects/edit/:id", element: <EditProject /> },
+      { path: "projects/view/:id", element: <ViewProject /> },
       // add: { path: "projects/:projectId", element: <ProjectDetailPage /> }
     ],
   },

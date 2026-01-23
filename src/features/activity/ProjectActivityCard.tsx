@@ -55,6 +55,7 @@ export const ProjectActivityPage = ({
   setHighLightId: (id: string) => void;
 }) => {
   const [openProject, setOpenProject] = useState<string | null>(null);
+  const [limit, setLimit] = useState<number>(5);
   const navigate = useNavigate();
 
   const groupedProjects = useMemo(
@@ -111,7 +112,7 @@ export const ProjectActivityPage = ({
                 {/* Accordion Content */}
                 {isOpen && (
                   <div className="bg-gray-50 px-4 py-2 space-y-2">
-                    {projectActivities.slice(0, 5).map((activity) => (
+                    {projectActivities.slice(0, limit).map((activity) => (
                       <div
                         key={activity.id}
                         className="bg-white border rounded-md p-2"
@@ -164,6 +165,20 @@ export const ProjectActivityPage = ({
                         </div>
                       </div>
                     ))}
+                    {limit < projectActivities.length && (
+                      <Button
+                        size="sm"
+                        variant={"link"}
+                        className="flex justify-center text-blue-300"
+                        onClick={() => {
+                          if (limit < projectActivities.length) {
+                            setLimit(limit + 5);
+                          }
+                        }}
+                      >
+                        show more...
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

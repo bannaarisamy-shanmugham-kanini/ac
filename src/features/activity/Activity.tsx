@@ -9,6 +9,7 @@ import {
   ChevronUp,
   ChevronDown,
   SquareArrowOutUpRight,
+  Eye,
 } from "lucide-react";
 import clsx from "clsx";
 import { ActivityDetails } from "./ActivityDetails";
@@ -95,6 +96,7 @@ export const Activity = () => {
     if (type === "UPDATE")
       return <Pencil size={18} className="text-blue-600" />;
     if (type === "DELETE") return <Trash size={18} className="text-red-600" />;
+    if (type === "VIEW") return <Eye size={18} className="text-amber-500" />;
     return null;
   };
 
@@ -178,6 +180,18 @@ export const Activity = () => {
                   </div>
                   <span className="font-medium text-sm">DELETE</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setFilterData("GroupBy");
+                    setGroupByAction("VIEW");
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-red-50 cursor-pointer transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                    <Eye size={16} className="text-amber-500" />
+                  </div>
+                  <span className="font-medium text-sm">VIEW</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -201,6 +215,7 @@ export const Activity = () => {
                         activity.actionType === "ADD" && "bg-green-100",
                         activity.actionType === "UPDATE" && "bg-blue-100",
                         activity.actionType === "DELETE" && "bg-red-100",
+                        activity.actionType === "VIEW" && "bg-amber-100",
                       )}
                     >
                       {renderIcon(activity.actionType)}

@@ -13,6 +13,7 @@ type ProjectState = {
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   setProjects: (items: Project[]) => void;
+  viewProject: (id: string) => void;
 };
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -82,6 +83,25 @@ export const useProjectStore = create<ProjectState>((set) => ({
         field: "projects",
         prevChanges: JSON.stringify({ ...project }),
         newChanges: "",
+      },
+      createdAt: new Date(),
+    });
+  },
+
+  viewProject: (id) => {
+    const project = useProjectStore
+      .getState()
+      .projects.find((item) => item.id === id);
+    useAppStore.getState().updateActivities({
+      id: useAppStore.getState().activities.length + 1,
+      actionType: "VIEW",
+      entityType: "PROJECT",
+      entityId: id,
+      entityName: project?.title || "",
+      changesMade: {
+        field: "projects",
+        prevChanges: JSON.stringify({ ...project }),
+        newChanges: JSON.stringify({ ...project }),
       },
       createdAt: new Date(),
     });
