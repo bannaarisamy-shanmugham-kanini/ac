@@ -1,4 +1,4 @@
-import { useAppStore } from "@/store";
+import { useAppStore, useProjectStore } from "@/store";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,135 +16,19 @@ import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuCheckboxItem,
+  DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
 } from "@/components/ui/dropdown-menu";
-
-/* ------------------ Project Card ------------------ */
-
-const groupByProject = (activities: any[]) => {
-  const map: Record<string, any[]> = {};
-
-  activities.forEach((activity) => {
-    const project =
-      activity.entityName || activity.entityType || "Unknown Project";
-
-    if (!map[project]) {
-      map[project] = [];
-    }
-    map[project].push(activity);
-  });
-
-  Object.keys(map).forEach((key) => {
-    map[key].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() -
-        new Date(a.createdAt).getTime(),
-    );
-  });
-
-  return map;
-};
-
-const ProjectActivityCard = ({ activities }: { activities: any[] }) => {
-  const [openProject, setOpenProject] = useState<string | null>(null);
-
-  const groupedProjects = useMemo(
-    () => groupByProject(activities),
-    [activities],
-  );
-
-  const formatTime = (dateString: Date) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  return (
-    <div className="bg-white border rounded-2xl shadow-sm sticky top-20">
-      <div className="px-4 py-3 border-b">
-        <h2 className="text-sm font-semibold text-gray-700">
-          Project Activities
-        </h2>
-      </div>
-
-      <div className="divide-y max-h-[70vh] overflow-auto">
-        {Object.entries(groupedProjects).map(
-          ([projectName, projectActivities]) => {
-            const isOpen = openProject === projectName;
-
-            return (
-              <div key={projectName}>
-                {/* Header */}
-                <button
-                  onClick={() =>
-                    setOpenProject(isOpen ? null : projectName)
-                  }
-                  className="w-full flex justify-between items-center px-4 py-3 hover:bg-gray-50"
-                >
-                  <div className="text-left">
-                    <p className="text-sm font-medium">{projectName}</p>
-                    <p className="text-xs text-gray-400">
-                      {projectActivities.length} activities
-                    </p>
-                  </div>
-
-                  {isOpen ? (
-                    <ChevronUp size={16} />
-                  ) : (
-                    <ChevronDown size={16} />
-                  )}
-                </button>
-
-                {/* Content */}
-                {isOpen && (
-                  <div className="bg-gray-50 px-4 py-2 space-y-2">
-                    {projectActivities.slice(0, 5).map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="bg-white border rounded-md p-2"
-                      >
-                        <p
-                          className={clsx(
-                            "text-xs font-semibold",
-                            activity.actionType === "ADD" &&
-                              "text-green-600",
-                            activity.actionType === "UPDATE" &&
-                              "text-blue-600",
-                            activity.actionType === "DELETE" &&
-                              "text-red-600",
-                          )}
-                        >
-                          {activity.actionType}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {formatTime(activity.createdAt)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          },
-        )}
-      </div>
-    </div>
-  );
-};
+import { ProjectActivityPage } from "./ProjectActivityCard";
 
 /* ------------------ Main Activity Page ------------------ */
 
 export const Activity = () => {
   const setHeaderName = useAppStore((s) => s.updateHeaderName);
   const activities = useAppStore((s) => s.activities);
+  const projects = useProjectStore((s) => s.projects);
   const [filterData, setFilterData] = useState<string>("Today");
+  const [groupByAction, setGroupByAction] = useState<string>("ADD");
   const [openId, setOpenId] = useState<string | number | null>(null);
   const navigate = useNavigate();
 
@@ -152,12 +36,15 @@ export const Activity = () => {
     setHeaderName("Activities");
   }, [setHeaderName]);
 
+  console.log(projects, "projects");
+
   const sortedActivities = useMemo(() => {
     return [...activities]
       .filter((activity) => {
         if (filterData === "All") return true;
-        if (["ADD", "UPDATE", "DELETE"].includes(filterData)) {
-          return activity.actionType === filterData;
+        
+        if (filterData === "GroupBy") {
+          return activity.actionType === groupByAction;
         }
 
         let start = new Date().setHours(0, 0, 0, 0);
@@ -182,7 +69,7 @@ export const Activity = () => {
           new Date(b.createdAt).getTime() -
           new Date(a.createdAt).getTime(),
       );
-  }, [activities, filterData]);
+  }, [activities, filterData, groupByAction]);
 
   const renderIcon = (type: string) => {
     if (type === "ADD") return <Plus size={18} className="text-green-600" />;
@@ -196,9 +83,13 @@ export const Activity = () => {
   return (
     <div className="w-full px-6 py-4">
       {/* Page Header */}
-      <div className="flex items-center justify-center gap-2 mb-4">
-        <ActivityIcon />
-        <h1 className="text-xl font-semibold">Activities</h1>
+      <div className="flex items-center justify-center gap-3 mb-6">
+        <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+          <ActivityIcon className="text-white" size={32} />
+        </div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Activities
+        </h1>
       </div>
 
       {/* 2 Column Layout */}
@@ -209,13 +100,68 @@ export const Activity = () => {
             {["Today", "Yesterday", "All"].map((item) => (
               <Button
                 key={item}
-                variant="ghost"
+                variant={filterData === item ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setFilterData(item)}
+                className={clsx(
+                  filterData === item && "bg-blue-500 text-white"
+                )}
               >
                 {item}
               </Button>
             ))}
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={filterData === "GroupBy" ? "default" : "ghost"}
+                  size="sm"
+                  className={clsx(
+                    filterData === "GroupBy" && "bg-blue-500 text-white"
+                  )}
+                >
+                  GroupBy {filterData === "GroupBy" && `(${groupByAction})`}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 p-2 bg-white border rounded-lg shadow-lg">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setFilterData("GroupBy");
+                    setGroupByAction("ADD");
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-green-50 cursor-pointer transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <Plus size={16} className="text-green-600" />
+                  </div>
+                  <span className="font-medium text-sm">ADD</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setFilterData("GroupBy");
+                    setGroupByAction("UPDATE");
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-blue-50 cursor-pointer transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <Pencil size={16} className="text-blue-600" />
+                  </div>
+                  <span className="font-medium text-sm">UPDATE</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setFilterData("GroupBy");
+                    setGroupByAction("DELETE");
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-red-50 cursor-pointer transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                    <Trash size={16} className="text-red-600" />
+                  </div>
+                  <span className="font-medium text-sm">DELETE</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="divide-y">
@@ -253,6 +199,7 @@ export const Activity = () => {
                       <Button
                         size="icon"
                         variant="ghost"
+                        disabled={!projects.some(project => project.title === activity.entityName)}
                         onClick={() =>
                           navigate("/projects/edit/" + activity.entityId)
                         }
@@ -291,7 +238,7 @@ export const Activity = () => {
 
         {/* Right Column */}
         <div className="w-80">
-          <ProjectActivityCard activities={activities} />
+          <ProjectActivityPage activities={activities} projects={projects} />
         </div>
       </div>
     </div>

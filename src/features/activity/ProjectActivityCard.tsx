@@ -1,14 +1,11 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, SquareArrowOutUpRight } from "lucide-react";
 import clsx from "clsx";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import type { Activities } from "@/store";
 
-type ActivityItem = {
-  id: string | number;
-  actionType: "ADD" | "UPDATE" | "DELETE";
-  entityName?: string;
-  entityType?: string;
-  createdAt: Date;
-};
+type ActivityItem = Activities;
 
 const groupByProject = (activities: ActivityItem[]) => {
   const map: Record<string, ActivityItem[]> = {};
@@ -51,15 +48,20 @@ const formatTime = (dateString: Date) => {
 
 export const ProjectActivityPage = ({
   activities,
+    projects,
 }: {
   activities: ActivityItem[];
+  projects: { title: string }[];
 }) => {
   const [openProject, setOpenProject] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const groupedProjects = useMemo(
     () => groupByProject(activities),
     [activities],
   );
+
+  console.log(activities, "activities");
 
   return (
     <div className="bg-white border rounded-2xl shadow-sm sticky top-20">
@@ -115,23 +117,41 @@ export const ProjectActivityPage = ({
                         key={activity.id}
                         className="bg-white border rounded-md p-2"
                       >
-                        <p
-                          className={clsx(
-                            "text-xs font-semibold",
-                            activity.actionType === "ADD" &&
-                              "text-green-600",
-                            activity.actionType === "UPDATE" &&
-                              "text-blue-600",
-                            activity.actionType === "DELETE" &&
-                              "text-red-600",
-                          )}
-                        >
-                          {activity.actionType}
-                        </p>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p
+                              className={clsx(
+                                "text-xs font-semibold",
+                                activity.actionType === "ADD" &&
+                                  "text-green-600",
+                                activity.actionType === "UPDATE" &&
+                                  "text-blue-600",
+                                activity.actionType === "DELETE" &&
+                                  "text-red-600",
+                              )}
+                            >
+                              {activity.actionType}
+                            </p>
 
-                        <p className="text-xs text-gray-500">
-                          {formatTime(activity.createdAt)}
-                        </p>
+                            <p className="text-xs text-gray-500">
+                              {formatTime(activity.createdAt)}
+                            </p>
+                          </div>
+
+                          {activity.actionType === "UPDATE" && activity.entityId && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7"
+                              disabled={!projects.some(project => project.title === activity.entityName)}
+                              onClick={() =>
+                                navigate("/projects/edit/" + activity.entityId)
+                              }
+                            >
+                              <SquareArrowOutUpRight className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

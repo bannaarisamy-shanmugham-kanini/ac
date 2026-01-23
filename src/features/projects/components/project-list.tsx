@@ -8,7 +8,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { Pencil, Trash, Plus } from "lucide-react";
+import { Pencil, Trash, Plus, FolderKanban, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -54,9 +54,14 @@ export const ProjectList = () => {
       <div className="w-full max-w-5xl flex flex-col gap-4">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Projects
-          </h1>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+              <FolderKanban className="text-white" size={32} />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Projects
+            </h1>
+          </div>
 
           <Button
             size="lg"
@@ -108,6 +113,16 @@ export const ProjectList = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-2">
+                        <Button
+                          variant="ghost"
+                          className="text-green-600 hover:bg-green-50"
+                          onClick={() =>
+                            navigate(`/projects/view/${item.id}`)
+                          }
+                        >
+                          <Eye size={18} />
+                        </Button>
+
                         <Button
                           variant="ghost"
                           className="text-blue-600 hover:bg-blue-50"
