@@ -202,7 +202,7 @@ export const Activity = () => {
                 key={activity.id}
                 id={`activity-${activity.id}`}
                 className={clsx(
-                  "px-4 py-3 hover:bg-gray-50 ",
+                  "px-4 py-3 hover:bg-gray-100 last:hover:rounded-b-2xl",
                   hightLightId === `activity-${activity.id}` &&
                     "transition ring-4 ring-sky-300 ring-offset-2 bg-sky-50",
                 )}
@@ -237,6 +237,7 @@ export const Activity = () => {
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="cursor-pointer"
                         disabled={
                           !projects.some(
                             (project) => project.title === activity.entityName,
@@ -252,6 +253,7 @@ export const Activity = () => {
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="cursor-pointer"
                         onClick={() =>
                           setOpenId(openId === activity.id ? null : activity.id)
                         }

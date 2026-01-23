@@ -90,7 +90,7 @@ export const ProjectActivityPage = ({
               <div key={projectName}>
                 {/* Accordion Header */}
                 <button
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition"
+                  className="w-full flex items-center cursor-pointer justify-between px-4 py-3 hover:bg-gray-50 transition rounded-2xl last:hover:rounded-b-2xl"
                   onClick={() => setOpenProject(isOpen ? null : projectName)}
                 >
                   <div className="text-left">
@@ -120,7 +120,7 @@ export const ProjectActivityPage = ({
                           setHighLightId(`activity-${activity.id}`);
                         }}
                       >
-                        <div className="flex justify-between items-start">
+                        <div className="flex justify-between items-start cursor-pointer">
                           <div>
                             <p
                               className={clsx(
